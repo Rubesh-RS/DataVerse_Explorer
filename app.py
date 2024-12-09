@@ -8,6 +8,7 @@ import os
 from sklearn.linear_model import LinearRegression
 import numpy as np
 from datetime import datetime
+import math
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'uploads'
@@ -55,7 +56,7 @@ def index():
         next_date = df['Date'].max() + pd.Timedelta(days=1)
 
         # Append the prediction to the dataframe
-        next_row = pd.DataFrame({'Date': [next_date], 'Total Vandal Users': [next_vandal_users], 'Total Phantom Users': [next_phantom_users]})
+        next_row = pd.DataFrame({'Date': [next_date], 'Vandal_Users': [next_vandal_users], 'Phantom_Users': [next_phantom_users]})
         df = pd.concat([df, next_row], ignore_index=True)
 
         predicted_value = {
@@ -66,12 +67,16 @@ def index():
 
 
         # Plot the graph
-        plt.figure(figsize=(10, 6))
-        plt.plot(df['Date'], df['Vandal_Users'], label='Vandal Users')
-        plt.plot(df['Date'], df['Phantom_Users'], label='Phantom Users')
+        plt.figure(figsize=(20, 6))
+        plt.plot(df['Date'], df['Vandal_Users'], color='orangered', label='Vandal Users',marker="4")
+        plt.plot(df['Date'], df['Phantom_Users'], color='dodgerblue', label='Phantom Users',marker="4")
         # Highlight the predicted point
         plt.scatter(next_date, next_vandal_users, color='red', label='Predicted Vandal Users')
-        plt.scatter(next_date, next_phantom_users, color='orange', label='Predicted Phantom Users')
+        plt.scatter(next_date, next_phantom_users, color='blue', label='Predicted Phantom Users')
+        plt.axhline(y=next_vandal_users, color='grey', linestyle='--', alpha=0.3)
+        plt.axhline(y=next_phantom_users, color='grey', linestyle='--', alpha=0.3)
+        plt.text(df['Date'].min(), next_phantom_users, f'{math.floor(next_phantom_users)}', color='black', va='center', ha='right', alpha=0.8, fontsize=12)
+        plt.text(df['Date'].min(), next_vandal_users, f'{math.floor(next_vandal_users)}', color='black', va='center', ha='right', alpha=0.8, fontsize=12)
         plt.xlabel('Date')
         plt.ylabel('Number of Users')
         plt.title('Vandal and Phantom Users Over Time')
